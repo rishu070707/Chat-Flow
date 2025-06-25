@@ -1,0 +1,50 @@
+@import "tailwindcss";
+/* Basic reset and full height for html/body and the root div */
+
+
+/* Dark mode styles, activated by the 'dark' class on <html> or <body> */
+/* These will override the light mode styles when the 'dark' class is present */
+.dark { /* Apply dark mode styles to the html element itself */
+  background-color: #0f172a; /* Tailwind's bg-slate-900 */
+  color: #f8fafc; /* Tailwind's text-white */
+}
+
+.dark body { /* Ensure body background also matches in dark mode */
+  background-color: #0f172a; /* Tailwind's bg-slate-900 */
+  color: #f8fafc; /* Tailwind's text-white */
+}
+
+
+/* --- Scrollbar Styles (as provided before, keep these) --- */
+
+/* For Webkit browsers (Chrome, Safari) */
+.chat-messages-scrollbar::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+}
+
+.chat-messages-scrollbar::-webkit-scrollbar-track {
+  background: transparent; /* Transparent track */
+}
+
+.chat-messages-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #888; /* Color of the scroll thumb */
+  border-radius: 4px; /* Rounded corners for the thumb */
+  border: 2px solid transparent; /* Padding around the thumb, matches track for blending */
+  background-clip: padding-box; /* Ensures the border is transparent and padding is part of the thumb area */
+}
+
+/* For Firefox */
+.chat-messages-scrollbar {
+  scrollbar-width: thin; /* "auto" or "thin" */
+  scrollbar-color: #888 transparent; /* thumb color track color */
+}
+
+/* Dark mode scrollbar styles for browsers that support it */
+/* These will activate when the 'dark' class is on <html> or <body> */
+.dark .chat-messages-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #555; /* Darker thumb for dark mode */
+}
+
+.dark .chat-messages-scrollbar {
+  scrollbar-color: #555 transparent;
+}
