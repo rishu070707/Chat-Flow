@@ -1,12 +1,11 @@
-// src/Login.jsx
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import {
-  signInWithEmailAndPassword,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
+  onAuthStateChanged
 } from "firebase/auth";
-import { auth, db } from "../firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -16,36 +15,37 @@ import video from "./2.mp4";
 const provider = new GoogleAuthProvider();
 
 const Login = () => {
-  const [formData, setFormData] = useState({ email: "", password: "" });
   const navigate = useNavigate();
 
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      await signInWithEmailAndPassword(auth, formData.email, formData.password);
-      toast.success("Login successful");
-      navigate("/chat");
-    } catch (error) {
-      toast.error("Invalid email or password");
-    }
-  };
-
   const handleGoogleSignIn = async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      const userRef = doc(db, "Users", user.uid);
-      const docSnap = await getDoc(userRef);
-
-      toast.success("Signed in with Google");
-      navigate("/chat");
-    } catch (error) {
-      toast.error(error.message);
-    }
+    await signInWithRedirect(auth, provider);
   };
+
+  useEffect(() => {
+    const fetchRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result?.user) {
+          toast.success("Signed in with Google");
+          navigate("/chat");
+          return;
+        }
+      } catch (error) {
+        toast.error(error.message);
+      }
+    };
+
+    fetchRedirectResult();
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log("User detected from auth state", user);
+        navigate("/chat");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [navigate]);
 
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh", overflow: "hidden" }}>
@@ -61,6 +61,7 @@ const Login = () => {
           zIndex: 0,
         }}
       />
+
       {/* White Overlay */}
       <div
         style={{
@@ -71,6 +72,7 @@ const Login = () => {
           zIndex: 1,
         }}
       />
+
       {/* Background Video */}
       <video
         autoPlay
@@ -92,7 +94,7 @@ const Login = () => {
         <source src={video} type="video/mp4" />
       </video>
 
-      {/* Login Form */}
+      {/* Login Card */}
       <div
         className="d-flex justify-content-center align-items-center"
         style={{ height: "100vh", zIndex: 3, position: "relative" }}
@@ -109,12 +111,6 @@ const Login = () => {
         >
           <div className="card-body text-center">
             <h1 className="fw-bold mb-4 text-uppercase">Login</h1>
-            <form onSubmit={handleLogin}>
-              <div className="form-outline form-white mb-4">
-                
-              </div>
-              
-            </form>
             <hr className="my-3" />
             <button className="btn btn-danger btn-lg w-100 mb-3" onClick={handleGoogleSignIn}>
               <i className="fab fa-google me-2"></i> Login with Google
